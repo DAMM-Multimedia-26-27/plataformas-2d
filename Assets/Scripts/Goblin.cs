@@ -14,15 +14,14 @@ public class Goblin : MonoBehaviour
     Animator anim;
     SpriteRenderer sprite;
     Rigidbody2D cuerpo;
+    bool atacando;
+    GameObject aGolpear;
 
-    void Awake()
-    {
-        direccion = 1;
-    }
     // Start is called before the first frame update
     void Start()
     {
         temporizador = tiempoPatrulla;
+        direccion = 1;
         anim = GetComponent<Animator>();
         sprite = GetComponent<SpriteRenderer>();
         cuerpo = GetComponent<Rigidbody2D>();
@@ -34,25 +33,35 @@ public class Goblin : MonoBehaviour
         //ActualizarMovimiento();
         Girar();
         ActualizarTemporizador();
-        DetectarJugador();
-        if (Input.GetKeyDown(KeyCode.C))
+        
+        if (DetectarJugador())
         {
             anim.SetBool("Atacar", true);
+            atacando = true;
         }
         else
         {
             anim.SetBool("Atacar", false);
+            atacando = false;
         }
     }
 
     private bool DetectarJugador()
     {
         RaycastHit2D rayo = Physics2D.BoxCast(
-            transform.position, tamannoAtaque, 0, Vector2.right * direccion,
+            transform.position, tamannoAtaque, 0, Vector2.right * (direccion == 0 ? 1 : direccion),
             distanciaAtaque, capaJugador
         );
 
-        if (rayo) return true;
+        if (rayo) {
+            aGolpear = rayo.rigidbody.gameObject;
+            //jugador.GetComponent<MovimientoJugador>().RecibeDanno(0, transform.position);
+            return true;
+        }
+        else
+        {
+            aGolpear = null;
+        }
         return false;
     }
 
@@ -70,7 +79,10 @@ public class Goblin : MonoBehaviour
 
     private void ActualizarTemporizador()
     {
-        temporizador -= Time.deltaTime;
+        if (!atacando) 
+        {
+            temporizador -= Time.deltaTime;
+        }
         if (temporizador < 0)
         {
             direccion *= -1;
@@ -80,16 +92,28 @@ public class Goblin : MonoBehaviour
 
     void FixedUpdate()
     {
-        cuerpo.velocity = new Vector2(direccion * velocidad, cuerpo.velocity.y);
+        if (atacando)
+        {
+            cuerpo.velocity = new Vector2(0, cuerpo.velocity.y);
+        }
+        else
+        {
+            cuerpo.velocity = new Vector2(direccion * velocidad, cuerpo.velocity.y);
+        }
     }
 
-        void OnDrawGizmos()
+    public void Punnalada()
+    {
+        if (aGolpear != null) aGolpear.GetComponent<MovimientoJugador>().RecibeDanno(1, transform.position);
+    }
+
+    void OnDrawGizmos()
     {
         if (DetectarJugador())
         {
             Gizmos.color = Color.red;
         } 
-        Gizmos.DrawWireCube(transform.position + Vector3.right * direccion * distanciaAtaque,
+        Gizmos.DrawWireCube(transform.position + Vector3.right * (direccion == 0 ? 1 : direccion) * distanciaAtaque,
             tamannoAtaque
         );
         Gizmos.color = Color.white;
