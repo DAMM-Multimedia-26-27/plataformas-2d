@@ -37,6 +37,7 @@ public class MovimientoJugador : MonoBehaviour
         RotarPersonaje();
         //EstaEnElSuelo();
         ActualizarAnim();
+        LeerAtaque();
     }
 
     void ActualizarAnim()
@@ -63,11 +64,13 @@ public class MovimientoJugador : MonoBehaviour
     {
         if (movimiento.x < 0)
         {
-            sprite.flipX = true;
+            // sprite.flipX = true;
+            gameObject.transform.rotation = new Quaternion(0, 180, 0, 0);
         }
         else if (movimiento.x > 0)
         {
-            sprite.flipX = false;
+            // sprite.flipX = false;
+            gameObject.transform.rotation = new Quaternion(0, 0, 0, 0);
         }
     }
 
@@ -79,6 +82,18 @@ public class MovimientoJugador : MonoBehaviour
             saltando = true;
             polvoSalto.transform.parent = null;
         }
+    }
+
+    private void LeerAtaque()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            anim.SetTrigger("Atacando");
+        }
+        // else
+        // {
+        //     anim.ResetTrigger("Atacando");
+        // }
     }
 
     private void LeerMovimiento()
@@ -153,16 +168,6 @@ public class MovimientoJugador : MonoBehaviour
         direccionAtaque.Normalize();
         knockBack = direccionAtaque * 250 + 100 * Vector2.up;
     }
-
-    // void OnMouseOver()
-    // {
-    //     holis.SetActive(true);
-    // }
-
-    // void OnMouseExit()
-    // {
-    //     holis.SetActive(false);
-    // }
 
     void OnMouseDrag()
     {

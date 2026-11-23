@@ -1,13 +1,14 @@
 using System;
 using UnityEngine;
 
-public class Goblin : MonoBehaviour
+public class Goblin : MonoBehaviour, IGolpeable
 {
     public float tiempoPatrulla;
     public float velocidad;
     public Vector2 tamannoAtaque;
     public float distanciaAtaque;
     public LayerMask capaJugador;
+    public int vidaMax;
 
     float temporizador;
     int direccion;
@@ -16,6 +17,7 @@ public class Goblin : MonoBehaviour
     Rigidbody2D cuerpo;
     bool atacando;
     GameObject aGolpear;
+    int vida;
 
     // Start is called before the first frame update
     void Start()
@@ -25,6 +27,7 @@ public class Goblin : MonoBehaviour
         anim = GetComponent<Animator>();
         sprite = GetComponent<SpriteRenderer>();
         cuerpo = GetComponent<Rigidbody2D>();
+        vida = vidaMax;
     }
 
     // Update is called once per frame
@@ -117,5 +120,12 @@ public class Goblin : MonoBehaviour
             tamannoAtaque
         );
         Gizmos.color = Color.white;
+    }
+
+    public void RecibeGolpe(int danno)
+    {
+        vida -= danno;
+        Debug.Log("Goblin vida: " + vida);
+        if (vida < 0) Destroy(gameObject);
     }
 }
